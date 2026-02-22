@@ -117,11 +117,9 @@ RUN set -eux; \
     fi; \
     \
     # Create symlink to /usr/local/bin for PATH availability \
-    # Note: ln -sf succeeds even for dangling symlinks, so check file exists first \
+    # Only needed for native binary installs; npm already puts claude on PATH \
     if [ -f "${INSTALL_DIR}/claude" ]; then \
         ln -sf "${INSTALL_DIR}/claude" /usr/local/bin/claude; \
-    else \
-        ln -sf "$(which claude)" /usr/local/bin/claude; \
     fi; \
     \
     # Final verification \
