@@ -1,28 +1,5 @@
 # Changelog
 
-## 1.8.0
-
-### 🐛 Bug Fix - Installation Failures on Low-RAM and Non-AVX Systems
-- **Fixed OOM build failures** (#56): Replaced `curl | bash` native installer with direct binary download from Anthropic's CDN
-  - **Root cause**: The official installer runs `claude install` after downloading, which spawns a memory-intensive process that gets killed (exit code 137) on systems with ~4GB RAM
-  - **Solution**: Download the pre-built musl binary directly and place it without running the installer's self-install step
-  - SHA256 checksum verification ensures binary integrity
-- **Fixed AVX CPU requirement**: Automatic fallback to npm when native binary fails to execute
-  - The native binary embeds the Bun runtime which requires AVX CPU instructions
-  - Systems without AVX (older Intel Atom/Celeron, some Proxmox/VirtualBox VMs) now fall back to npm-based installation automatically
-  - Binary is tested at build time — if it can't run, npm takes over seamlessly
-- **Added missing Alpine dependencies**: `libgcc`, `libstdc++`, and `ripgrep` per official Claude Code Alpine requirements
-  - Set `USE_BUILTIN_RIPGREP=0` since the bundled ripgrep doesn't work on musl-based systems
-- **armv7 support preserved**: Falls back through installer chain to npm since no native binary exists
-
-### 🛠️ Technical Details
-- Three-tier installation with cascading fallback:
-  1. **Direct binary download** from Anthropic's GCS release bucket (fast, low memory, checksum verified)
-  2. **Official native installer** (`curl | bash`) — upstream recommended method
-  3. **npm install** (deprecated by Anthropic, but covers AVX/armv7 edge cases)
-- Platform detection via `BUILD_ARCH` arg (passed by HA builder): `amd64`→`linux-x64-musl`, `aarch64`→`linux-arm64-musl`
-- No changes to runtime behavior — `run.sh` symlink logic works identically
-
 ## 1.7.0
 
 ### ✨ New Features
