@@ -117,8 +117,12 @@ RUN set -eux; \
     fi; \
     \
     # Create symlink to /usr/local/bin for PATH availability \
-    ln -sf "${INSTALL_DIR}/claude" /usr/local/bin/claude \
-        || ln -sf "$(which claude)" /usr/local/bin/claude; \
+    # Note: ln -sf succeeds even for dangling symlinks, so check file exists first \
+    if [ -f "${INSTALL_DIR}/claude" ]; then \
+        ln -sf "${INSTALL_DIR}/claude" /usr/local/bin/claude; \
+    else \
+        ln -sf "$(which claude)" /usr/local/bin/claude; \
+    fi; \
     \
     # Final verification \
     claude --version
